@@ -1,2 +1,2 @@
 # enigma
-Internetowy komunikator wykorzystujący metody szyfrowania asynchronicznego. Praca inżynierska.
+Internetowy komunikator wykorzystujący metody szyfrowania asymetrycznego. Praca inżynierska.
