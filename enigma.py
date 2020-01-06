@@ -9,21 +9,20 @@ app = Flask(__name__,
 # utworzenie losowego klucza prywatnego dla ochrony przed CSRF
 SECRET_KEY = urandom(32)
 app.config['SECRET_KEY'] = SECRET_KEY
-app.config['RECAPTCHA_USE_SSL'] = False
+# app.config['RECAPTCHA_USE_SSL'] = False
 app.config['RECAPTCHA_PUBLIC_KEY'] = "6LcS8MwUAAAAAHx02QRjhBWh76MGRY6E2KKS9NEM"
-# app.config['RECAPTCHA_PRIVATE_KEY'] = "6LcS8MwUAAAAADE4kFsBXIh3zcEa52i_jmXMwhQC"
 app.testing = True
 
 @app.route('/', methods=["GET", "POST"])
 def mainpage():
-    return render_template('mainpage.html')
+    return render_template('mainpage.html', mainpage_active=True)
 
 @app.route('/login', methods=["POST", "GET"])
 def login():
     form = forms.LoginForm()
     if form.validate_on_submit():
         return redirect(url_for('profil'))
-    return render_template('login.html', form=form)
+    return render_template('login.html', login_active=True, form=form)
 
 @app.route('/register', methods=["POST", "GET"])
 def register():
@@ -35,11 +34,11 @@ def register():
         else:
             flash('dupa')
             return redirect(url_for('mainpage'))
-    return render_template('register.html', form=form)
+    return render_template('register.html', register_active=True, form=form)
 
 @app.route('/profil', methods=["POST", "GET"])
 def profil():
-    return render_template('profil.html')
+    return render_template('profil.html', profil_active=True)
 
 def main():
     app.run(debug=True)

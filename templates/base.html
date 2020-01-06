@@ -9,7 +9,28 @@
     <title>Enigma</title>
 </head>
 <body>
-    {% block pasek_nawigacji %}{% endblock %}
+    <ul>
+        {% if mainpage_active %}
+            <li><a class="active" href="/">Strona Główna</a></li>
+        {% else %}
+            <li><a href="/">Strona Główna</a></li>
+        {% endif %}
+        {% if login_active %}
+            <li><a class="active" href="/login">Zaloguj się</a></li>
+        {% else %}
+            <li><a href="/login">Zaloguj się</a></li>
+        {% endif %}
+        {% if register_active %}
+            <li><a class="active" href="/register">Zarejestruj się</a></li>
+        {% else %}
+            <li><a href="/register">Zarejestruj się</a></li>
+        {% endif %}
+        {% if profil_active %}
+            <li><a class="active" href="/profil">Profil</a></li>
+        {% else %}
+            <li><a href="/profil">Profil</a></li>
+        {% endif %}
+    </ul>
     <div class="container">
         {% block container %}{% endblock %}
     </div>
