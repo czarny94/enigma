@@ -18,7 +18,7 @@ ul {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background-color: #23d9d3;
+  background-color: blue;
   position: -webkit-sticky; /* dla Safari */
   position: sticky; /* przesuwanie belki nawigacji razem ze stroną */
   top: 0;
