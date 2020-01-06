@@ -2,12 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Enigma</title>
-    <h1>Enigma </h1>
-    <h3>komunikator internetowy wykorzystujący szyfrowanie asymetryczne.</h3>
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
 </head>
 <body>
-    {% block container %}{% endblock %}
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="{{ url_for('login')}}">Login</a>
+        </div>
+      </div>
+    </div>
+    <h1>Enigma </h1>
+    <h3>komunikator internetowy wykorzystujący szyfrowanie asymetryczne.</h3>
+    <div class="container">
+        {% block container %}{% endblock %}
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
 </body>
 <footer>
   <p>Praca Inżynierska, autor: Maciej Czarnota</p>
