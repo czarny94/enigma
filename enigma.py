@@ -32,8 +32,8 @@ def register():
             flash('formularz wypełniony poprawnie')
             return redirect(url_for('register'))
         else:
-            flash('dupa')
-            return redirect(url_for('mainpage'))
+            flash('Dane wprowadzone niepoprawnie')
+            return redirect(url_for('register'))
     return render_template('register.html', register_active=True, form=form)
 
 @app.route('/profil', methods=["POST", "GET"])

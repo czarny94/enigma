@@ -31,8 +31,21 @@
             <li><a href="/profil">Profil</a></li>
         {% endif %}
     </ul>
+<!--    pole służące do wyświetlania zawartości stron dziedziczacych-->
     <div class="container">
         {% block container %}{% endblock %}
+    </div>
+<!--    pole służące do wyświetlania błędów-->
+    <div class="container">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <ul class=flashes>
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
     </div>
     <div class="footer">
         <p>Praca Inżynierska, autor: Maciej Czarnota</p>
