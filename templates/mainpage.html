@@ -1,26 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    <h1>Enigma </h1>
-    <h3>komunikator internetowy wykorzystujący szyfrowanie asymetryczne.</h3>
-    <form action="{{ url_for('login') }}" method="post">
-        nazwa użytkownika:
-        <br>
-        <input type="text" name="username">
-        <br>
-        hasło:
-        <br>
-        <input type="password" name="password">
-        <br>
-        <input type="submit" value="zaloguj się">
-        <br>
-    </form>
-    <form action="{{ url_for('rejestracja') }}" method="get">
-        <input type="submit" value="zarejestruj sie">
-    </form>
-</body>
-</html>
+{% extends "base.html" %}
+{% block pasek_nawigacji %}
+<ul>
+    <li><a class="active" href="/">Strona Główna</a></li>
+<!--    <li><a href="#news">News</a></li>-->
+</ul>
+{% endblock %}
+{% block container %}
+<div class="header">
+    <h2>Enigma</h2>
+    <p>komunikator internetowy wykorzystujący szyfrowanie asymetryczne</p>
+</div>
+{% endblock %}

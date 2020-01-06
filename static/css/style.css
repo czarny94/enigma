@@ -1,0 +1,45 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  background-color: powderblue;
+}
+.footer {
+   position: fixed; /* pokazuje stopke zawsze na dole strony */
+   left: 0;
+   bottom: 0;
+   width: 100%;
+   background-color: blue;
+   color: white;
+   text-align: center;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #23d9d3;
+  position: -webkit-sticky; /* dla Safari */
+  position: sticky; /* przesuwanie belki nawigacji razem ze stroną */
+  top: 0;
+}
+
+li {
+  float: left;
+}
+
+li a {
+  display: block;
+  color: black;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+li a:hover {
+  background-color: #111;
+}
+
+.active {
+  background-color: #4CAF50;
+}
