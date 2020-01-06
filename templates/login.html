@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block pasek_nawigacji %}
+    <ul>
+        <li><a href="/">Strona Główna</a></li>
+        <li><a class="active" href="/login">Zaloguj się</a></li>
+        <li><a href="/profil">Profil</a></li>
+    </ul>
+{% endblock %}
+{% block container %}
+{% from "_formhelpers.html" import render_field %}
+    <form method=post action="{{ url_for('login') }}">
+      <dl>
+        {{ render_field(form.username) }}
+        {{ render_field(form.password) }}
+      </dl>
+        {{ form.csrf_token }}
+      <p><input type=submit value=Zaloguj się>
+    </form>
+{% endblock %}
