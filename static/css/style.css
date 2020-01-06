@@ -24,6 +24,15 @@ ul {
   top: 0;
 }
 
+ul.flashes {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: red;
+  top: 0;
+}
+
 /* konfiguracja elementów listy nawigacyjnej na górze ekranu */
 li {
   float: left;
@@ -45,3 +54,4 @@ li a:hover {
 .active {
   background-color: #4CAF50;
 }
+
