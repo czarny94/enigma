@@ -6,6 +6,7 @@ app = Flask(__name__,
             static_folder='static',
             static_url_path='/static',
             template_folder='templates')
+# utworzenie losowego klucza prywatnego dla ochrony przed CSRF
 SECRET_KEY = urandom(32)
 app.config['SECRET_KEY'] = SECRET_KEY
 
