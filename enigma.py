@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, redirect
+from flask import Flask, render_template, request, url_for, redirect, flash
 from forms import forms
 from os import urandom
 
@@ -9,6 +9,10 @@ app = Flask(__name__,
 # utworzenie losowego klucza prywatnego dla ochrony przed CSRF
 SECRET_KEY = urandom(32)
 app.config['SECRET_KEY'] = SECRET_KEY
+app.config['RECAPTCHA_USE_SSL'] = False
+app.config['RECAPTCHA_PUBLIC_KEY'] = "6LcS8MwUAAAAAHx02QRjhBWh76MGRY6E2KKS9NEM"
+# app.config['RECAPTCHA_PRIVATE_KEY'] = "6LcS8MwUAAAAADE4kFsBXIh3zcEa52i_jmXMwhQC"
+app.testing = True
 
 @app.route('/', methods=["GET", "POST"])
 def mainpage():
@@ -20,6 +24,18 @@ def login():
     if form.validate_on_submit():
         return redirect(url_for('profil'))
     return render_template('login.html', form=form)
+
+@app.route('/register', methods=["POST", "GET"])
+def register():
+    form = forms.RegistrationForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            flash('formularz wypełniony poprawnie')
+            return redirect(url_for('register'))
+        else:
+            flash('dupa')
+            return redirect(url_for('mainpage'))
+    return render_template('register.html', form=form)
 
 @app.route('/profil', methods=["POST", "GET"])
 def profil():

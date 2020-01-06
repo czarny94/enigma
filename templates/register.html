@@ -2,19 +2,23 @@
 {% block pasek_nawigacji %}
     <ul>
         <li><a href="/">Strona Główna</a></li>
-        <li><a class="active" href="/login">Zaloguj się</a></li>
-        <li><a href="/register">Zarejestruj się</a></li>
+        <li><a href="/login">Zaloguj się</a></li>
+        <li><a class="active" href="/register">Zarejestruj się</a></li>
         <li><a href="/profil">Profil</a></li>
     </ul>
 {% endblock %}
+
 {% block container %}
 {% from "_formhelpers.html" import render_field %}
-    <form method=post action="{{ url_for('login') }}">
+    <form method=post action="{{ url_for('register') }}">
       <dl>
         {{ render_field(form.username) }}
+        {{ render_field(form.email) }}
         {{ render_field(form.password) }}
+        {{ render_field(form.confirm) }}
+        {{ render_field(form.recaptcha) }}
       </dl>
         {{ form.csrf_token }}
-      <p><input type=submit value="Zaloguj się">
+      <p><input type=submit value="Zarejestruj się">
     </form>
 {% endblock %}
