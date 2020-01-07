@@ -25,6 +25,7 @@ ul {
   top: 0;
 }
 
+/* konfiguracja listy wyswietlajacej błędy flash */
 ul.flashes {
   list-style-type: none;
   margin: 0;
@@ -39,6 +40,12 @@ li {
   float: left;
 }
 
+/* konfiguracja elementów listy wyświetlającej błedy */
+li.flash {
+  float: left;
+}
+
+/*konfiguracja elementów listy nawigacyjnej*/
 li a {
   display: block;
   color: black;
