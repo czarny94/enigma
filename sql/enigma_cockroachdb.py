@@ -48,7 +48,7 @@ class Cockroach:
             echo=True  # Log SQL queries to stdout
         )
 
-        # Automatically create the "accounts" table based on the Account class.
+        # Automatyczne utworzenie tabel, jeżeli nie ma
         Base.metadata.create_all(self.engine)
 
         self.Session = sessionmaker()
