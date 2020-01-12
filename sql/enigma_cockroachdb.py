@@ -74,12 +74,14 @@ class Cockroach:
 
     # sprawdzenie zadanego hasła za pomocą salt i key z bazy danych
     def check_password(self, username, password):
-        salt = self.session.query(Account.password_salt).filter_by(
-            username=username).scalar()
-        key = self.session.query(Account.password_key).filter_by(
-            username=username).scalar()
-        if key == hashlib.pbkdf2_hmac("sha256", password.encode('utf-8'), salt, 100000):
-            return True
+        exists = self.session.query(Account.id).filter_by(username=username).first() is not None
+        if exists:
+            salt = self.session.query(Account.password_salt).filter_by(
+                username=username).scalar()
+            key = self.session.query(Account.password_key).filter_by(
+                username=username).scalar()
+            if key == hashlib.pbkdf2_hmac("sha256", password.encode('utf-8'), salt, 100000):
+                return True
         return False
 
 
