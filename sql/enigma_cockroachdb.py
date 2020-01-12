@@ -8,7 +8,6 @@
 import hashlib
 import os
 
-from cockroachdb.sqlalchemy import run_transaction
 from sqlalchemy import create_engine, Column, Integer, String, LargeBinary
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -19,6 +18,7 @@ COCKROACH_DB_DATABASE = 'enigma'
 SECURE_CLUSTER = False  # Set to False for insecure clusters
 
 Base = declarative_base()
+
 
 # Klasa Account jest odzwierciedleniem tabeli accounts w cockroachdb
 class Account(Base):
@@ -55,34 +55,34 @@ class Cockroach:
         self.Session.configure(bind=self.engine)
         self.session = self.Session()
 
-    def create_account(self, account):
-        exists = self.session.query(Account.id).filter_by(username=account.username).first() is not None
+    def create_account(self, username, password, email):
+        exists = self.session.query(Account.id).filter_by(username=username).first() is not None
         if not exists:
+            # Utworzenie salt i key na podstawie zadanego hasła
+            salt = os.urandom(32)
+            key = hashlib.pbkdf2_hmac("sha256", password.encode('utf-8'), salt, 100000)
+            # stworzenie obiektu użytkownika
+            account = Account(
+                username=username,
+                password_salt=salt,
+                password_key=key,
+                email=email
+            )
+            # commit użytkownika do bazy
             self.session.add(account)
             self.session.commit()
 
-# Utworzenie salt i key na podstawie zadanego hasła
-def salt_password(salt, password):
-    key = hashlib.pbkdf2_hmac("sha256", password.encode('utf-8'), salt, 100000)
-    return key
-
-# sprawdzenie zadanego hasła za pomocą salt i key z bazy danych
-def check_password(salt, key, password):
-    if key == hashlib.pbkdf2_hmac("sha256", password.encode('utf-8'), salt, 100000):
-        return True
-    else:
+    # sprawdzenie zadanego hasła za pomocą salt i key z bazy danych
+    def check_password(self, username, password):
+        salt = self.session.query(Account.password_salt).filter_by(
+            username=username).scalar()
+        key = self.session.query(Account.password_key).filter_by(
+            username=username).scalar()
+        if key == hashlib.pbkdf2_hmac("sha256", password.encode('utf-8'), salt, 100000):
+            return True
         return False
 
 
 cockroach = Cockroach(SECURE_CLUSTER)
 
-salt = os.urandom(32)
-password = 'masełko'
-test_account = Account(
-    username='macfiej',
-    password_salt=salt,
-    password_key=salt_password(salt, password),
-    email="maciek.czarnota@gmail.com"
-)
-
-cockroach.create_account(test_account)
+cockroach.create_account('roman', 'dupa', 'roman@cycki.pl')
