@@ -31,7 +31,7 @@ class Account(Base):
 
 
 class Cockroach:
-    def __init__(self, secure_cluster):
+    def __init__(self, secure_cluster=False):
         if secure_cluster:
             self.connect_args = {
                 'sslmode': 'require',
@@ -56,6 +56,8 @@ class Cockroach:
         self.session = self.Session()
 
     def create_account(self, username, password, email):
+        # TODO: dodać obsługę wyjątków w sytuacjach, kiedy nie ma bazy danych, nie ma użytkownika, oraz użytkownik nie ma uprawnień do bazy
+        print(type(username))
         exists = self.session.query(Account.id).filter_by(username=username).first() is not None
         if not exists:
             # Utworzenie salt i key na podstawie zadanego hasła
@@ -84,7 +86,6 @@ class Cockroach:
                 return True
         return False
 
-
-cockroach = Cockroach(SECURE_CLUSTER)
-
-cockroach.create_account('roman', 'dupa', 'roman@cycki.pl')
+# cockroach = Cockroach(SECURE_CLUSTER)
+# cockroach.create_account(username="czesio", password='dupa', email='dupa@cycki.pl')
+# print(cockroach.check_password(username='czesio', password='dufpa'))

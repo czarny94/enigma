@@ -43,6 +43,15 @@ sudo docker exec -it roach1 ./cockroach init --insecure
 # dostep do klienta psql bazy danych
 sudo docker exec -it roach1 ./cockroach sql --insecure
 
+#stworzenie bazy danych enigma
+create database enigma;
+
+#stworzenie użytkownika enigma
+create user enigma;
+
+#nadanie uprawnień użytkownikowi enigma do utworzonej bazy danych
+grant all on database enigma to enigma;
+
 # zastopowanie kontenerów cockroacha
 sudo docker stop roach1 roach2 roach3
 
