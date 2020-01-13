@@ -57,7 +57,6 @@ class Cockroach:
 
     def create_account(self, username, password, email):
         # TODO: dodać obsługę wyjątków w sytuacjach, kiedy nie ma bazy danych, nie ma użytkownika, oraz użytkownik nie ma uprawnień do bazy
-        print(type(username))
         exists = self.session.query(Account.id).filter_by(username=username).first() is not None
         if not exists:
             # Utworzenie salt i key na podstawie zadanego hasła
@@ -83,7 +82,13 @@ class Cockroach:
             key = self.session.query(Account.password_key).filter_by(
                 username=username).scalar()
             if key == hashlib.pbkdf2_hmac("sha256", password.encode('utf-8'), salt, 100000):
-                return True
+                id = self.session.query(Account.id).filter_by(
+                    username=username).scalar()
+                username = self.session.query(Account.username).filter_by(
+                    username=username).scalar()
+                email = self.session.query(Account.email).filter_by(
+                    username=username).scalar()
+                return id, username, email
         return False
 
 # cockroach = Cockroach(SECURE_CLUSTER)
