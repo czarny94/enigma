@@ -72,6 +72,8 @@ class Cockroach:
             # commit użytkownika do bazy
             self.session.add(account)
             self.session.commit()
+            return True
+        return False
 
     # sprawdzenie zadanego hasła za pomocą salt i key z bazy danych
     def check_password(self, username, password):
