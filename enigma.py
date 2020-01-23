@@ -1,7 +1,7 @@
 from os import urandom
 
-from flask import Flask, render_template, request, url_for, redirect, flash, abort
-from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user
+from flask import Flask, render_template, request, url_for, redirect, flash
+from flask_login import LoginManager, login_required, login_user, logout_user
 
 from forms import forms
 from sql import enigma_cockroachdb
@@ -20,7 +20,7 @@ login_manager.init_app(app)
 login_manager.session_protection = "strong"
 
 # połączenie z bazą danych
-cockroach = enigma_cockroachdb.Cockroach()
+# cockroach = enigma_cockroachdb.Cockroach()
 
 
 # class User(UserMixin):

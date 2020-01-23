@@ -8,10 +8,10 @@
 import hashlib
 import os
 
+from flask_login import UserMixin
 from sqlalchemy import create_engine, Column, Integer, String, LargeBinary
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from flask_login import UserMixin
 
 COCKROACH_DB_USER = 'enigma'
 COCKROACH_DB_URL = 'localhost:26257'
@@ -20,15 +20,6 @@ SECURE_CLUSTER = False  # Set to False for insecure clusters
 
 Base = declarative_base()
 
-
-# Klasa Account jest odzwierciedleniem tabeli accounts w cockroachdb
-class Account(UserMixin, Base):
-    __tablename__ = 'accounts'
-    id = Column(Integer, primary_key=True)
-    username = Column(String)
-    password_salt = Column(LargeBinary)
-    password_key = Column(LargeBinary)
-    email = Column(String)
 
 class Cockroach:
     def __init__(self, secure_cluster=False):
@@ -55,9 +46,22 @@ class Cockroach:
         self.Session.configure(bind=self.engine)
         self.session = self.Session()
 
+
+# Klasa Account jest odzwierciedleniem tabeli accounts w cockroachdb, oraz implementuje metody UserMixin dla Flask-Login
+class Account(UserMixin, Base):
+    def __init__(self):
+        self.cockroach_db = Cockroach()
+
+    __tablename__ = 'accounts'
+    id = Column(Integer, primary_key=True)
+    username = Column(String)
+    password_salt = Column(LargeBinary)
+    password_key = Column(LargeBinary)
+    email = Column(String)
+
     def create_account(self, username, password, email):
         # TODO: dodać obsługę wyjątków w sytuacjach, kiedy nie ma bazy danych, nie ma użytkownika, oraz użytkownik nie ma uprawnień do bazy
-        exists = self.session.query(Account.id).filter_by(username=username).first() is not None
+        exists = self.cockroach_db.session.query(Account.id).filter_by(username=username).first() is not None
         if not exists:
             # Utworzenie salt i key na podstawie zadanego hasła
             salt = os.urandom(32)
@@ -70,29 +74,25 @@ class Cockroach:
                 email=email
             )
             # commit użytkownika do bazy
-            self.session.add(account)
-            self.session.commit()
+            self.cockroach_db.session.add(account)
+            self.cockroach_db.session.commit()
             return True
         return False
 
     # sprawdzenie zadanego hasła za pomocą salt i key z bazy danych
     def check_password(self, username, password):
-        exists = self.session.query(Account.id).filter_by(username=username).first() is not None
+        exists = self.cockroach_db.session.query(Account.id).filter_by(username=username).first() is not None
         if exists:
-            salt = self.session.query(Account.password_salt).filter_by(
+            salt = self.cockroach_db.session.query(Account.password_salt).filter_by(
                 username=username).scalar()
-            key = self.session.query(Account.password_key).filter_by(
+            key = self.cockroach_db.session.query(Account.password_key).filter_by(
                 username=username).scalar()
             if key == hashlib.pbkdf2_hmac("sha256", password.encode('utf-8'), salt, 100000):
-                id = self.session.query(Account.id).filter_by(
+                id = self.cockroach_db.session.query(Account.id).filter_by(
                     username=username).scalar()
-                username = self.session.query(Account.username).filter_by(
+                username = self.cockroach_db.session.query(Account.username).filter_by(
                     username=username).scalar()
-                email = self.session.query(Account.email).filter_by(
+                email = self.cockroach_db.session.query(Account.email).filter_by(
                     username=username).scalar()
                 return id, username, email
         return False
-
-# cockroach = Cockroach(SECURE_CLUSTER)
-# cockroach.create_account(username="czesio", password='dupa', email='dupa@cycki.pl')
-# print(cockroach.check_password(username='czesio', password='dufpa'))
