@@ -49,8 +49,8 @@ class Cockroach:
 
 # Klasa Account jest odzwierciedleniem tabeli accounts w cockroachdb, oraz implementuje metody UserMixin dla Flask-Login
 class Account(UserMixin, Base):
-    def __init__(self):
-        self.cockroach_db = Cockroach()
+    def __init__(self, cockroach_db = Cockroach()):
+        self.cockroach_db = cockroach_db
 
     __tablename__ = 'accounts'
     id = Column(Integer, primary_key=True)
@@ -67,14 +67,12 @@ class Account(UserMixin, Base):
             salt = os.urandom(32)
             key = hashlib.pbkdf2_hmac("sha256", password.encode('utf-8'), salt, 100000)
             # stworzenie obiektu użytkownika
-            account = Account(
-                username=username,
-                password_salt=salt,
-                password_key=key,
-                email=email
-            )
+            self.username=username
+            self.password_salt=salt
+            self.password_key=key
+            self.email=email
             # commit użytkownika do bazy
-            self.cockroach_db.session.add(account)
+            self.cockroach_db.session.add(self)
             self.cockroach_db.session.commit()
             return True
         return False

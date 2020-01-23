@@ -1,8 +1,7 @@
 {% extends "base.html" %}
 
-{% if current_user.is_authenticated %}
-  Hi {{ current_user.name }}!
-{% endif %}
-
 {% block container %}
+{% if current_user.is_authenticated %}
+  Hi {{ current_user.username }}!
+{% endif %}
 {% endblock %}
