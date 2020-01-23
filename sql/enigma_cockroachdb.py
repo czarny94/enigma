@@ -11,6 +11,7 @@ import os
 from sqlalchemy import create_engine, Column, Integer, String, LargeBinary
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from flask_login import UserMixin
 
 COCKROACH_DB_USER = 'enigma'
 COCKROACH_DB_URL = 'localhost:26257'
@@ -21,14 +22,13 @@ Base = declarative_base()
 
 
 # Klasa Account jest odzwierciedleniem tabeli accounts w cockroachdb
-class Account(Base):
+class Account(UserMixin, Base):
     __tablename__ = 'accounts'
     id = Column(Integer, primary_key=True)
     username = Column(String)
     password_salt = Column(LargeBinary)
     password_key = Column(LargeBinary)
     email = Column(String)
-
 
 class Cockroach:
     def __init__(self, secure_cluster=False):

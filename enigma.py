@@ -23,11 +23,11 @@ login_manager.session_protection = "strong"
 cockroach = enigma_cockroachdb.Cockroach()
 
 
-class User(UserMixin):
-    def __init__(self, id, username, email):
-        self.id = id
-        self.username = username
-        self.email = email
+# class User(UserMixin):
+#     def __init__(self, id, username, email):
+#         self.id = id
+#         self.username = username
+#         self.email = email
 
     # def get_id(self):
     #     return str(self.id)
@@ -65,7 +65,7 @@ def login():
     if form.validate_on_submit():
         user_data = cockroach.check_password(form.username.data, form.password.data)
         if user_data:
-            user = User(user_data[0], user_data[1], user_data[2])
+            user = enigma_cockroachdb.Account(id=user_data[0], username=user_data[1], email=user_data[2])
             login_user(user)
             flash('Zalogowano się pomyślnie')
             # next = request.args.get('next')
@@ -104,8 +104,10 @@ def logout():
 
 
 @login_manager.user_loader
-def load_user(user_id):
-    return User.get_id(user_id)
+def load_user(id):
+    if id is not None:
+        return cockroach.session.query(enigma_cockroachdb.Account).get(id)
+    return None
 
 def main():
     app.run(debug=True)
