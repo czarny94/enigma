@@ -55,9 +55,14 @@ def register():
     if request.method == 'POST':
         if form.validate_on_submit():
             account = enigma_cockroachdb.Account(cockroach)
-            account.create_account(username=form.username.data, password=form.password.data, email=form.email.data)
-            flash('Konto utworzone, witamy w systemie enigma {}'.format(form.username.data))
-            return redirect(url_for('login'))
+            is_created = account.create_account(username=form.username.data, password=form.password.data,
+                                                email=form.email.data)
+            if is_created:
+                flash('Konto utworzone, możesz się teraz zalogować')
+                return redirect(url_for('login'))
+            else:
+                flash('Konto nie zostało utworzone, prawdopodobnie taki użytkownik już istnieje')
+                return redirect(url_for('register'))
         else:
             flash('prosze poprawnie uzupełnić formularz')
             return redirect(url_for('register'))
@@ -74,6 +79,7 @@ def profil():
 @login_required
 def logout():
     logout_user()
+    flash('zostaleś wylogowany')
     return redirect(url_for('mainpage'))
 
 

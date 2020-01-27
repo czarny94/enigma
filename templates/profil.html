@@ -2,6 +2,9 @@
 
 {% block container %}
 {% if current_user.is_authenticated %}
-  Hi {{ current_user.username }}!
+  <h1>Profil</h1><br>
+  Zalogowany użytkownik: {{ current_user.username }} <br>
+  Adres email: {{ current_user.email }} <br>
+
 {% endif %}
 {% endblock %}
