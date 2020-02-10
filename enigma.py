@@ -100,7 +100,6 @@ def generate_keys():
 def get_keys():
     if request.method == "POST":
         data = json.loads(request.get_data().decode())
-        print(type(data))
         user_id = data['key']['key']['users'][0]['userId']['name']
         privateKeyArmored = data['key']['privateKeyArmored']
         publicKeyArmored = data['key']['publicKeyArmored']

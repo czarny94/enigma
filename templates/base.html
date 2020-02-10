@@ -7,6 +7,11 @@
     <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
     <title>Enigma</title>
+
+<!--    Potrzebne, aby się poprawnie importowały biblioteki JS!-->
+    <script type=text/javascript>
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    </script>
 </head>
 <body>
     <ul>

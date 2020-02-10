@@ -19,6 +19,7 @@ Po utracie tego hasła, odszyfrowanie wiadomości nie będzie możliwe. Lepiej g
             passphrase: passphrase.value           // protects the private key
             });
 
+            console.log(key);
             $.ajax({
                 type: "POST",
                 url: "/get_keys",
@@ -31,13 +32,12 @@ Po utracie tego hasła, odszyfrowanie wiadomości nie będzie możliwe. Lepiej g
                     alert(errMsg);
                 }
             });
+            alert('poprawnie wygenerowano zestaw kluczy');
+<!--            to poniżej, może powodować wyścig z generacją kluczy i przekierować zanim te zostaną wygenerowane i wysłane-->
+            window.location.replace("profil");
 
         })();
-        alert('poprawnie wygenerowano zestaw kluczy');
-        window.location.replace("profil");
-
      });
-
 
 </script>
 
