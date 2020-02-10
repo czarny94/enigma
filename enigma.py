@@ -105,10 +105,6 @@ def get_keys():
         privateKeyArmored = data['key']['privateKeyArmored']
         publicKeyArmored = data['key']['publicKeyArmored']
         revocationCertificate = data['key']['revocationCertificate']
-        print(data)
-        # print(data['key']['privateKeyArmored'])
-        # print(data['key']['publicKeyArmored'])
-        # print(data['key']['revocationCertificate'])
     # return render_template('get_keys')
 
 
