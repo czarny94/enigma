@@ -20,7 +20,6 @@ SECURE_CLUSTER = False  # Set to False for insecure clusters
 
 Base = declarative_base()
 
-
 class Cockroach:
     def __init__(self, secure_cluster=False):
         if secure_cluster:
@@ -102,9 +101,22 @@ class Keys(Base):
     __tablename__ = 'keys'
     id = Column(Integer, primary_key=True)
     email = Column(String)
-    public_key = Column(LargeBinary)
-    private_key = Column(LargeBinary)
-    revocation_key = Column(LargeBinary)
+    public_key = Column(String)
+    private_key = Column(String)
+    revocation_key = Column(String)
+    timestamp = Column(String)
 
-    def generate_keys(self):
-        pass
+    def add_key(self, id, email, public_key, private_key, revocation_key, timestamp):
+        exists = self.cockroach_db.session.query(Keys.id).filter_by(id=id).first() is not None
+        if not exists:
+            self.id = id
+            self.email = email
+            self.public_key = public_key
+            self.private_key = private_key
+            self.revocation_key = revocation_key
+            self.timestamp = timestamp
+            # commit klucza do bazy
+            self.cockroach_db.session.add(self)
+            self.cockroach_db.session.commit()
+            return True
+        return False

@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 {% block container %}
 
+Generowanie zestawu kluczy dla użytkownika: <b>{{ current_user.username }}</b><br>
 Wybierz hasło dla zabezpieczenia klucza prywatnego.<br>
-Uwaga! To hasło nie jest nigdzie zapisywane, nie ma możliwości jego przypomnienia, ani wygenerowania nowego.<br>
+<b>Uwaga!</b> To hasło nie jest nigdzie zapisywane, nie ma możliwości jego przypomnienia, ani wygenerowania nowego.<br>
 Po utracie tego hasła, odszyfrowanie wiadomości nie będzie możliwe. Lepiej go zapamiętaj!<br>
 <input type="text" id="passphrase" value="">
 <br>
@@ -23,7 +24,6 @@ Po utracie tego hasła, odszyfrowanie wiadomości nie będzie możliwe. Lepiej g
             $.ajax({
                 type: "POST",
                 url: "/get_keys",
-                // The key needs to match your method's input parameter (case-sensitive).
                 data: JSON.stringify({ key: key }),
                 contentType: "application/x-www-form-urlencoded; charset=utf-8",
                 dataType: "json",

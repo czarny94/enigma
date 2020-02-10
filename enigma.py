@@ -1,11 +1,11 @@
+import json
 from os import urandom
 
 from flask import Flask, render_template, request, url_for, redirect, flash
-from flask_login import LoginManager, login_required, login_user, logout_user
+from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 
 from forms import forms
 from sql import enigma_cockroachdb
-import json
 
 app = Flask(__name__, )
 # utworzenie losowego klucza prywatnego dla ochrony przed CSRF
@@ -59,8 +59,9 @@ def register():
             is_created = account.create_account(username=form.username.data, password=form.password.data,
                                                 email=form.email.data)
             if is_created:
-                flash('Konto utworzone, możesz się teraz zalogować')
-                return redirect(url_for('login'))
+                flash('Konto utworzone, teraz czas na wygenerowanie kluczy')
+                login_user(account)
+                return redirect(url_for('generate_keys'))
             else:
                 flash('Konto nie zostało utworzone, prawdopodobnie taki użytkownik już istnieje')
                 return redirect(url_for('register'))
@@ -73,7 +74,13 @@ def register():
 @app.route('/profil')
 @login_required
 def profil():
-    return render_template('profil.html', profil_active=True)
+    key_timestamp = cockroach.session.query(enigma_cockroachdb.Keys.timestamp).filter_by(
+        id=current_user.id).first()
+    if key_timestamp:
+        key_timestamp = key_timestamp.timestamp
+    else:
+        key_timestamp = "brak klucza PGP"
+    return render_template('profil.html', profil_active=True, key_timestamp=key_timestamp)
 
 
 @app.route('/logout')
@@ -90,21 +97,32 @@ def load_user(id):
         return cockroach.session.query(enigma_cockroachdb.Account).get(id)
     return None
 
+
 @app.route('/generate_keys', methods=["POST", "GET"])
 @login_required
 def generate_keys():
     return render_template('generate_keys.html')
 
-@app.route('/get_keys', methods=["GET", "POST"])
+
+@app.route('/get_keys', methods=["POST"])
 # @login_required
 def get_keys():
     if request.method == "POST":
-        data = json.loads(request.get_data().decode())
-        user_id = data['key']['key']['users'][0]['userId']['name']
-        privateKeyArmored = data['key']['privateKeyArmored']
-        publicKeyArmored = data['key']['publicKeyArmored']
-        revocationCertificate = data['key']['revocationCertificate']
-    # return render_template('get_keys')
+        try:
+            data = json.loads(request.get_data().decode())
+            id = data['key']['key']['users'][0]['userId']['name']
+            email = data['key']['key']['users'][0]['userId']['email']
+            privateKeyArmored = data['key']['privateKeyArmored']
+            publicKeyArmored = data['key']['publicKeyArmored']
+            revocationCertificate = data['key']['revocationCertificate']
+            timestamp = data['key']['key']['keyPacket']['created']
+        except KeyError or TypeError:
+            return ""
+        key = enigma_cockroachdb.Keys(cockroach)
+        key.add_key(id=id, email=email, private_key=privateKeyArmored,
+                    public_key=publicKeyArmored, revocation_key=revocationCertificate, timestamp=timestamp)
+    # zwracam pusty string, w przeciwnym razie flask zgłasza wyjątki
+    return ""
 
 
 def main():
