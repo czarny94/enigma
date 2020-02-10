@@ -94,3 +94,17 @@ class Account(UserMixin, Base):
                     username=username).scalar()
                 return id, username, email
         return False
+
+class Keys(Base):
+    def __init__(self, cockroach_db = Cockroach()):
+        self.cockroach_db = cockroach_db
+
+    __tablename__ = 'keys'
+    id = Column(Integer, primary_key=True)
+    email = Column(String)
+    public_key = Column(LargeBinary)
+    private_key = Column(LargeBinary)
+    revocation_key = Column(LargeBinary)
+
+    def generate_keys(self):
+        pass

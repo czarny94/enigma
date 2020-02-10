@@ -5,6 +5,7 @@ from flask_login import LoginManager, login_required, login_user, logout_user
 
 from forms import forms
 from sql import enigma_cockroachdb
+import json
 
 app = Flask(__name__, )
 # utworzenie losowego klucza prywatnego dla ochrony przed CSRF
@@ -88,6 +89,27 @@ def load_user(id):
     if id is not None:
         return cockroach.session.query(enigma_cockroachdb.Account).get(id)
     return None
+
+@app.route('/generate_keys', methods=["POST", "GET"])
+@login_required
+def generate_keys():
+    return render_template('generate_keys.html')
+
+@app.route('/get_keys', methods=["GET", "POST"])
+# @login_required
+def get_keys():
+    if request.method == "POST":
+        data = json.loads(request.get_data().decode())
+        print(type(data))
+        user_id = data['key']['key']['users'][0]['userId']['name']
+        privateKeyArmored = data['key']['privateKeyArmored']
+        publicKeyArmored = data['key']['publicKeyArmored']
+        revocationCertificate = data['key']['revocationCertificate']
+        print(data)
+        # print(data['key']['privateKeyArmored'])
+        # print(data['key']['publicKeyArmored'])
+        # print(data['key']['revocationCertificate'])
+    # return render_template('get_keys')
 
 
 def main():
