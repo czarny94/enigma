@@ -156,7 +156,8 @@ def chat_response(message):
 
 
 @socketio.on('response_to_user', namespace='/enigma_chat')
-def chat_response(message):
+def response_to_user(message):
+    print(message['data'])
     emit('server_response',
          {'data': '{}: {}'.format(session['_user_name'], message['data'])},
          room=message['room'])

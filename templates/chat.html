@@ -45,22 +45,24 @@
             $('form#send_user').submit(function(event) {
                 if (document.getElementById('encrypt').checked) {
                     socket.emit('get_public_key', {data: $('#room_name').val()});
-                    socket.on('public_key', function(msg) {
-                        const publicKeys = msg.data;
-                        (async () => {
-                            const { data: encrypted } = await openpgp.encrypt({
-                                message: openpgp.message.fromText($('#room_data').val()),   // wiadomość z formularza
-                                publicKeys: (await openpgp.key.readArmored(publicKeys)).keys, // klucz publiczny do zaszyfrowania
-                            });
-                        socket.emit('response_to_user', {room: $('#room_name').val(), data: encrypted}); // zaszyfrowana wiadomość
-                        })();
-                    });
+
                     return false;
                 } else {
                     socket.emit('response_to_user', {room: $('#room_name').val(), data: $('#room_data').val()});
                     return false;
                 }
 
+            });
+            // proces szyfrowania wiadomości
+            socket.on('public_key', function(msg) {
+                const publicKeys = msg.data;
+                (async () => {
+                    const { data: encrypted } = await openpgp.encrypt({
+                        message: openpgp.message.fromText($('#room_data').val()),   // wiadomość z formularza
+                        publicKeys: (await openpgp.key.readArmored(publicKeys)).keys, // klucz publiczny do zaszyfrowania
+                    });
+                socket.emit('response_to_user', {room: $('#room_name').val(), data: encrypted}); // zaszyfrowana wiadomość
+                })();
             });
 
         });
