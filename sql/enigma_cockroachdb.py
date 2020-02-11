@@ -20,6 +20,7 @@ SECURE_CLUSTER = False  # Set to False for insecure clusters
 
 Base = declarative_base()
 
+
 class Cockroach:
     def __init__(self, secure_cluster=False):
         if secure_cluster:
@@ -48,7 +49,7 @@ class Cockroach:
 
 # Klasa Account jest odzwierciedleniem tabeli accounts w cockroachdb, oraz implementuje metody UserMixin dla Flask-Login
 class Account(UserMixin, Base):
-    def __init__(self, cockroach_db = Cockroach()):
+    def __init__(self, cockroach_db=Cockroach()):
         self.cockroach_db = cockroach_db
 
     __tablename__ = 'accounts'
@@ -66,10 +67,10 @@ class Account(UserMixin, Base):
             salt = os.urandom(32)
             key = hashlib.pbkdf2_hmac("sha256", password.encode('utf-8'), salt, 100000)
             # stworzenie obiektu użytkownika
-            self.username=username
-            self.password_salt=salt
-            self.password_key=key
-            self.email=email
+            self.username = username
+            self.password_salt = salt
+            self.password_key = key
+            self.email = email
             # commit użytkownika do bazy
             self.cockroach_db.session.add(self)
             self.cockroach_db.session.commit()
@@ -94,8 +95,15 @@ class Account(UserMixin, Base):
                 return id, username, email
         return False
 
+    def get_user_name(self, id):
+        return self.cockroach_db.session.query(Account.username).filter_by(id=id).first()
+
+    def get_user_id(self, username):
+        return self.cockroach_db.session.query(Account.id).filter_by(username=username).first()
+
+
 class Keys(Base):
-    def __init__(self, cockroach_db = Cockroach()):
+    def __init__(self, cockroach_db=Cockroach()):
         self.cockroach_db = cockroach_db
 
     __tablename__ = 'keys'
@@ -121,8 +129,12 @@ class Keys(Base):
             return True
         return False
 
+    def get_pubkey(self, id):
+        return self.cockroach_db.session.query(Keys.public_key).filter_by(id=id).first()
+
+
 class Message(Base):
-    def __init__(self, cockroach_db = Cockroach()):
+    def __init__(self, cockroach_db=Cockroach()):
         self.cockroach_db = cockroach_db
 
     __tablename__ = 'messages'

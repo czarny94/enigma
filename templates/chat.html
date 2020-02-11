@@ -11,7 +11,7 @@
             // Socket.IO will multiplex all those connections on a single
             // physical channel. If you don't care about multiple channels, you
             // can set the namespace to an empty string.
-            namespace = '/chat_response';
+            namespace = '/enigma_chat';
 
             // Connect to the Socket.IO server.
             // The connection URL has the following format, relative to the current page:
@@ -26,8 +26,8 @@
             // The callback function is invoked whenever the server emits data
             // to the client. The data is then displayed in the "Received"
             // section of the page.
-            socket.on('my_response', function(msg, cb) {
-                $('#log').append('<br>' + $('<div/>').text('Received #' + msg.count + ': ' + msg.data).html());
+            socket.on('server_response', function(msg, cb) {
+                $('#log').append('<br>' + $('<div/>').text(msg.data).html());
                 if (cb)
                     cb();
             });
@@ -37,13 +37,37 @@
                 socket.emit('chat_response', {data: $('#emit_data').val()});
                 return false;
             });
+
+
+
+
+            $('form#send_user').submit(function(event) {
+                if (document.getElementById('encrypt').checked) {
+                    socket.emit('get_public_key', {data: $('#room_name').val()});
+                    return false;
+                } else {
+                    socket.emit('response_to_user', {room: $('#room_name').val(), data: $('#room_data').val()});
+                    return false;
+                }
+
+            });
+
         });
 
+
 </script>
-    <form id="emit" method="POST" action='#'>
-        <input type="text" name="emit_data" id="emit_data" placeholder="Message">
-        <input type="submit" value="Echo">
-    </form>
-    <h2>Receive:</h2>
-    <div id="log"></div>
+
+<form id="emit" method="POST" action='#'>
+    <input type="text" name="emit_data" id="emit_data" placeholder="Wiadomość">
+    <input type="submit" value="Wyślij wiadomość do wszystkich">
+</form>
+<form id="send_user" method="POST" action='#'>
+    <input type="text" name="room_name" id="room_name" placeholder="Nazwa użytkownika">
+    <input type="text" name="room_data" id="room_data" placeholder="Wiadomość">
+    <input type="submit" value="Wyślij wiadomość">
+    <input type="checkbox" name="encrypt" value="encrypt" id="encrypt"> Czy zaszyfrować wiadomość?<br>
+</form>
+
+<h2>Otrzymane wiadomości:</h2>
+<div id="log"></div>
 {% endblock %}

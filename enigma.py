@@ -4,7 +4,7 @@ from os import urandom
 from flask import Flask, render_template, request, url_for, redirect, flash, session
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room
 from forms import forms
 from sql import enigma_cockroachdb
 
@@ -19,7 +19,7 @@ app.testing = True
 # socketIO implementujący WebSockety
 # https://socket.io/
 # manage_session na false, ponieważ sesjami zarządza moduł flask-login
-socketio = SocketIO(app, manage_session=False)
+socketio = SocketIO(app, manage_session=True)
 
 # flask-login
 login_manager = LoginManager()
@@ -130,20 +130,45 @@ def get_keys():
     # zwracam pusty string, w przeciwnym razie flask zgłasza wyjątki
     return ""
 
+
 @app.route('/chat', methods=["POST", "GET"])
 @login_required
 def chat():
-    return render_template('chat.html', chat_active=True,)
+    return render_template('chat.html', chat_active=True, )
 
 
-@socketio.on('chat_response', namespace='/chat_response')
+@socketio.on('connect', namespace='/enigma_chat')
+def broadcast_on_connection():
+    try:
+        user_name = enigma_cockroachdb.Account(cockroach).get_user_name(session['_user_id'])
+        username = user_name.username
+        join_room(username)
+        session['_user_name'] = username
+        emit('server_response', {'data': username + ' połączył się'}, broadcast=True)
+    except KeyError:
+        pass
+
+
+@socketio.on('chat_response', namespace='/enigma_chat')
 def chat_response(message):
-    print(session['_user_id'])
-    emit('my_response', {'data': message['data'] + ' ' + request.sid})
+    if message['data'] is not "":
+        emit('server_response', {'data': '{}: {}'.format(session['_user_name'], message['data'])}, broadcast=True)
 
+
+@socketio.on('response_to_user', namespace='/enigma_chat')
+def chat_response(message):
+    emit('server_response',
+         {'data': '{}: {}'.format(session['_user_name'], message['data'])},
+         room=message['room'])
+
+@socketio.on('get_public_key', namespace='/enigma_chat')
+def get_public_key(message):
+    id = enigma_cockroachdb.Account(cockroach).get_user_id(message['data'])
+    pubkey = enigma_cockroachdb.Keys(cockroach).get_pubkey(id)
+    emit('server_response',
+         {'data': pubkey})
 
 def main():
-    # app.run(debug=True)
     socketio.run(app, debug=True)
 
 
