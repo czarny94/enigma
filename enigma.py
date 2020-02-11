@@ -165,7 +165,7 @@ def chat_response(message):
 def get_public_key(message):
     id = enigma_cockroachdb.Account(cockroach).get_user_id(message['data'])
     pubkey = enigma_cockroachdb.Keys(cockroach).get_pubkey(id)
-    emit('server_response',
+    emit('public_key',
          {'data': pubkey})
 
 def main():
