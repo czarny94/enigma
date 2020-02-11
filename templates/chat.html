@@ -45,7 +45,6 @@
             $('form#send_user').submit(function(event) {
                 if (document.getElementById('encrypt').checked) {
                     socket.emit('get_public_key', {data: $('#room_name').val()});
-
                     return false;
                 } else {
                     socket.emit('response_to_user', {room: $('#room_name').val(), data: $('#room_data').val()});
@@ -75,8 +74,8 @@
     <input type="submit" value="Wyślij wiadomość do wszystkich">
 </form>
 <form id="send_user" method="POST" action='#'>
-    <input type="text" name="room_name" id="room_name" placeholder="Nazwa użytkownika">
     <input type="text" name="room_data" id="room_data" placeholder="Wiadomość">
+    <input type="text" name="room_name" id="room_name" placeholder="Nazwa użytkownika">
     <input type="submit" value="Wyślij wiadomość">
     <input type="checkbox" name="encrypt" value="encrypt" id="encrypt"> Czy zaszyfrować wiadomość?<br>
 </form>
