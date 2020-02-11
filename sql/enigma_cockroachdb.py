@@ -120,3 +120,14 @@ class Keys(Base):
             self.cockroach_db.session.commit()
             return True
         return False
+
+class Message(Base):
+    def __init__(self, cockroach_db = Cockroach()):
+        self.cockroach_db = cockroach_db
+
+    __tablename__ = 'messages'
+    user_id = Column(Integer, primary_key=True)
+    message = Column(String)
+
+    def add_message(self):
+        pass

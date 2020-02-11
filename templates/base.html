@@ -35,6 +35,12 @@
         {% else %}
             <li><a href="/profil">Profil</a></li>
         {% endif %}
+        {% if chat_active %}
+            <li><a class="active" href="/chat">Chat</a></li>
+        {% else %}
+            <li><a href="/chat">Chat</a></li>
+        {% endif %}
+
     </ul>
 <!--    pole służące do wyświetlania zawartości stron dziedziczacych-->
     <div class="container">

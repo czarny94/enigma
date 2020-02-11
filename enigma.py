@@ -1,19 +1,25 @@
 import json
 from os import urandom
 
-from flask import Flask, render_template, request, url_for, redirect, flash
+from flask import Flask, render_template, request, url_for, redirect, flash, session
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 
+from flask_socketio import SocketIO, emit
 from forms import forms
 from sql import enigma_cockroachdb
 
-app = Flask(__name__, )
+app = Flask(__name__)
 # utworzenie losowego klucza prywatnego dla ochrony przed CSRF
 SECRET_KEY = urandom(32)
 app.config['SECRET_KEY'] = SECRET_KEY
 # app.config['RECAPTCHA_USE_SSL'] = False
 app.config['RECAPTCHA_PUBLIC_KEY'] = "6LcS8MwUAAAAAHx02QRjhBWh76MGRY6E2KKS9NEM"
 app.testing = True
+
+# socketIO implementujący WebSockety
+# https://socket.io/
+# manage_session na false, ponieważ sesjami zarządza moduł flask-login
+socketio = SocketIO(app, manage_session=False)
 
 # flask-login
 login_manager = LoginManager()
@@ -124,9 +130,21 @@ def get_keys():
     # zwracam pusty string, w przeciwnym razie flask zgłasza wyjątki
     return ""
 
+@app.route('/chat', methods=["POST", "GET"])
+@login_required
+def chat():
+    return render_template('chat.html', chat_active=True,)
+
+
+@socketio.on('chat_response', namespace='/chat_response')
+def chat_response(message):
+    print(session['_user_id'])
+    emit('my_response', {'data': message['data'] + ' ' + request.sid})
+
 
 def main():
-    app.run(debug=True)
+    # app.run(debug=True)
+    socketio.run(app, debug=True)
 
 
 if __name__ == '__main__':
