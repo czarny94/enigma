@@ -33,6 +33,23 @@
                     cb();
             });
 
+            socket.on('server_response_encrypted', function(msg, cb) {
+                (async () => {
+                    const { keys: [privateKey] } = await openpgp.key.readArmored(msg.privkey[0]);
+                    await privateKey.decrypt(document.getElementById('passphrase').value);
+                    const { data: decrypted } = await openpgp.decrypt({
+                        message: await openpgp.message.readArmored(msg.encrypted_message),              // parse armored message
+                        privateKeys: [privateKey]                                           // for decryption
+                    });
+                    console.log(decrypted); // 'Hello, World!'
+                    $('#log').append('<br>' + $('<div/>').text(msg.data + decrypted).html());
+                    if (cb)
+                        cb();
+                })();
+
+            });
+
+
 
             $('form#emit').submit(function(event) {
                 socket.emit('chat_response', {data: $('#emit_data').val()});
@@ -60,7 +77,7 @@
                         message: openpgp.message.fromText($('#room_data').val()),   // wiadomość z formularza
                         publicKeys: (await openpgp.key.readArmored(publicKeys)).keys, // klucz publiczny do zaszyfrowania
                     });
-                socket.emit('response_to_user', {room: $('#room_name').val(), data: encrypted}); // zaszyfrowana wiadomość
+                socket.emit('response_to_user_encrypted', {room: $('#room_name').val(), data: encrypted}); // zaszyfrowana wiadomość
                 })();
             });
 
@@ -79,6 +96,9 @@
     <input type="text" name="room_name" id="room_name" placeholder="Nazwa użytkownika">
     <input type="submit" value="Wyślij wiadomość">
     <input type="checkbox" name="encrypt" value="encrypt" id="encrypt"> Czy zaszyfrować wiadomość?<br>
+</form>
+<form id="passphrase_form">
+    <input type="password" name="passphrase" id="passphrase" placeholder="Hasło do klucza prywatnego"> Twoje tajne hasło użyte przy generacji kluczy, jeżeli go nie wpiszesz, wiadomości przychodzące nie zostaną odszyfrowane<br>
 </form>
 
 <h2>Otrzymane wiadomości:</h2>
