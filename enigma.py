@@ -148,6 +148,10 @@ def broadcast_on_connection():
     except KeyError:
         pass
 
+@socketio.on('disconnect', namespace='/enigma_chat')
+def broadcast_on_disconnect():
+    emit('server_response', {'data': session['_user_name'] + " rozłączył się"}, broadcast=True)
+
 
 @socketio.on('chat_response', namespace='/enigma_chat')
 def chat_response(message):

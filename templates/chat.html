@@ -7,26 +7,19 @@
 
 <script type="text/javascript" charset="utf-8">
         $(document).ready(function() {
-            // Use a "/test" namespace.
-            // An application can open a connection on multiple namespaces, and
-            // Socket.IO will multiplex all those connections on a single
-            // physical channel. If you don't care about multiple channels, you
-            // can set the namespace to an empty string.
+<!--            Aplikacja może otworzyć połączenie w wielu przestrzeniach nazw, a Socket.IO -->
+<!--            multipleksuje wszystkie te połączenia w jednym kanale fizycznym. -->
+<!--            Jeśli nie obchodzi Cię wiele kanałów, możesz ustawić przestrzeń nazw na pusty ciąg znaków.-->
             namespace = '/enigma_chat';
 
-            // Connect to the Socket.IO server.
-            // The connection URL has the following format, relative to the current page:
-            //     http[s]://<domain>:<port>[/<namespace>]
+            // Połączenie z serwerem SocketIO
             var socket = io(namespace);
 
             socket.on('connect', function() {
                 socket.emit('my_event', {data: 'I\'m connected!'});
             });
 
-            // Event handler for server sent data.
-            // The callback function is invoked whenever the server emits data
-            // to the client. The data is then displayed in the "Received"
-            // section of the page.
+            // Metoda uruchamiająca się przy otrzymaniu wiadomości od serwera
             socket.on('server_response', function(msg, cb) {
                 var today = new Date()
                 $('#log').append('<br>' + $('<div/>').text(today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds() + " " + msg.data).html());
@@ -35,21 +28,20 @@
             });
 
             socket.on('server_response_encrypted', function(msg, cb) {
-
                 (async () => {
                     try {
-                        const { keys: [privateKey] } = await openpgp.key.readArmored(msg.privkey[0]);
-                        await privateKey.decrypt(document.getElementById('passphrase').value);
-                        const { data: decrypted } = await openpgp.decrypt({
-                            message: await openpgp.message.readArmored(msg.encrypted_message),              // parse armored message
-                            privateKeys: [privateKey]                                           // for decryption
+                        const { keys: [privateKey] } = await openpgp.key.readArmored(msg.privkey[0]); // odczytanie klucza prywatnego
+                        await privateKey.decrypt(document.getElementById('passphrase').value); // odszyfrowanie samego klucza prywatnego za pomocą hasła
+                        const { data: decrypted } = await openpgp.decrypt({ // odszyfrowanie wiadomości
+                            message: await openpgp.message.readArmored(msg.encrypted_message),              // sparsowanie zaszyfrowanej wiadomości
+                            privateKeys: [privateKey]
                         });
-                        var today = new Date()
+                        var today = new Date() // aktualna data
                         $('#log').append('<br>' + $('<div/>').text(today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds() + " *odszyfrowana wiadomość* " + msg.data + decrypted).html());
                         if (cb)
                             cb();
                     }
-                    catch(error) {
+                    catch(error) { // jeżeli deszyfracja się nie uda
                         var today = new Date()
                         $('#log').append('<br>' + $('<div/>').text(today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds() + " " + msg.data + error).html());
                     }
@@ -106,7 +98,7 @@
     <input type="checkbox" name="encrypt" value="encrypt" id="encrypt"> Czy zaszyfrować wiadomość?<br>
 </form>
 <form id="passphrase_form">
-    <input type="password" name="passphrase" id="passphrase" placeholder="Hasło do klucza prywatnego"> Twoje tajne hasło
+    <input type="password" name="passphrase" id="passphrase" placeholder="Hasło do klucza prywatnego"> Twoje hasło
     użyte przy generacji kluczy szyfrujących, jeżeli go nie wpiszesz, wiadomości przychodzące nie zostaną
     odszyfrowane<br>
 </form>
