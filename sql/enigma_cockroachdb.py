@@ -133,6 +133,11 @@ class Keys(Base):
         return self.cockroach_db.session.query(Keys.public_key).filter_by(id=id).first()
 
 
+    def get_privkey(self, id):
+        return self.cockroach_db.session.query(Keys.private_key).filter_by(id=id).first()
+
+
+
 class Message(Base):
     def __init__(self, cockroach_db=Cockroach()):
         self.cockroach_db = cockroach_db
