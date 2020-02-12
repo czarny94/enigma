@@ -28,25 +28,32 @@
             // to the client. The data is then displayed in the "Received"
             // section of the page.
             socket.on('server_response', function(msg, cb) {
-                $('#log').append('<br>' + $('<div/>').text(msg.data).html());
+                var today = new Date()
+                $('#log').append('<br>' + $('<div/>').text(today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds() + " " + msg.data).html());
                 if (cb)
                     cb();
             });
 
             socket.on('server_response_encrypted', function(msg, cb) {
-                (async () => {
-                    const { keys: [privateKey] } = await openpgp.key.readArmored(msg.privkey[0]);
-                    await privateKey.decrypt(document.getElementById('passphrase').value);
-                    const { data: decrypted } = await openpgp.decrypt({
-                        message: await openpgp.message.readArmored(msg.encrypted_message),              // parse armored message
-                        privateKeys: [privateKey]                                           // for decryption
-                    });
-                    console.log(decrypted); // 'Hello, World!'
-                    $('#log').append('<br>' + $('<div/>').text(msg.data + decrypted).html());
-                    if (cb)
-                        cb();
-                })();
 
+                (async () => {
+                    try {
+                        const { keys: [privateKey] } = await openpgp.key.readArmored(msg.privkey[0]);
+                        await privateKey.decrypt(document.getElementById('passphrase').value);
+                        const { data: decrypted } = await openpgp.decrypt({
+                            message: await openpgp.message.readArmored(msg.encrypted_message),              // parse armored message
+                            privateKeys: [privateKey]                                           // for decryption
+                        });
+                        var today = new Date()
+                        $('#log').append('<br>' + $('<div/>').text(today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds() + " *odszyfrowana wiadomość* " + msg.data + decrypted).html());
+                        if (cb)
+                            cb();
+                    }
+                    catch(error) {
+                        var today = new Date()
+                        $('#log').append('<br>' + $('<div/>').text(today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds() + " " + msg.data + error).html());
+                    }
+                })();
             });
 
 
@@ -85,6 +92,7 @@
 
 
 
+
 </script>
 
 <form id="emit" method="POST" action='#'>
@@ -98,7 +106,9 @@
     <input type="checkbox" name="encrypt" value="encrypt" id="encrypt"> Czy zaszyfrować wiadomość?<br>
 </form>
 <form id="passphrase_form">
-    <input type="password" name="passphrase" id="passphrase" placeholder="Hasło do klucza prywatnego"> Twoje tajne hasło użyte przy generacji kluczy, jeżeli go nie wpiszesz, wiadomości przychodzące nie zostaną odszyfrowane<br>
+    <input type="password" name="passphrase" id="passphrase" placeholder="Hasło do klucza prywatnego"> Twoje tajne hasło
+    użyte przy generacji kluczy szyfrujących, jeżeli go nie wpiszesz, wiadomości przychodzące nie zostaną
+    odszyfrowane<br>
 </form>
 
 <h2>Otrzymane wiadomości:</h2>
