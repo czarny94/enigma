@@ -10,7 +10,7 @@
 <!--            Aplikacja może otworzyć połączenie w wielu przestrzeniach nazw, a Socket.IO -->
 <!--            multipleksuje wszystkie te połączenia w jednym kanale fizycznym. -->
 <!--            Jeśli nie obchodzi Cię wiele kanałów, możesz ustawić przestrzeń nazw na pusty ciąg znaków.-->
-            namespace = '/enigma_chat';
+            namespace = '/enigma_komunikator';
 
             // Połączenie z serwerem SocketIO
             var socket = io(namespace);
@@ -51,7 +51,7 @@
 
 
             $('form#emit').submit(function(event) {
-                socket.emit('chat_response', {data: $('#emit_data').val()});
+                socket.emit('komunikator_response', {data: $('#emit_data').val()});
                 return false;
             });
 

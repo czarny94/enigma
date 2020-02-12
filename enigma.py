@@ -131,13 +131,13 @@ def get_keys():
     return ""
 
 
-@app.route('/chat', methods=["POST", "GET"])
+@app.route('/komunikator', methods=["POST", "GET"])
 @login_required
-def chat():
-    return render_template('chat.html', chat_active=True, )
+def komunikator():
+    return render_template('komunikator.html', komunikator_active=True, )
 
 
-@socketio.on('connect', namespace='/enigma_chat')
+@socketio.on('connect', namespace='/enigma_komunikator')
 def broadcast_on_connection():
     try:
         user_name = enigma_cockroachdb.Account(cockroach).get_user_name(session['_user_id'])
@@ -148,25 +148,25 @@ def broadcast_on_connection():
     except KeyError:
         pass
 
-@socketio.on('disconnect', namespace='/enigma_chat')
+@socketio.on('disconnect', namespace='/enigma_komunikator')
 def broadcast_on_disconnect():
     emit('server_response', {'data': session['_user_name'] + " rozłączył się"}, broadcast=True)
 
 
-@socketio.on('chat_response', namespace='/enigma_chat')
-def chat_response(message):
+@socketio.on('komunikator_response', namespace='/enigma_komunikator')
+def komunikator_response(message):
     if message['data'] is not "":
         emit('server_response', {'data': session['_user_name'] + ': ' + message['data']}, broadcast=True)
 
 
-@socketio.on('response_to_user', namespace='/enigma_chat')
+@socketio.on('response_to_user', namespace='/enigma_komunikator')
 def response_to_user(message):
     emit('server_response',
          {'data': '{}: {}'.format(session['_user_name'], message['data'])},
          room=message['room'])
 
 
-@socketio.on('response_to_user_encrypted', namespace='/enigma_chat')
+@socketio.on('response_to_user_encrypted', namespace='/enigma_komunikator')
 def response_to_user_encrypted(message):
     id = enigma_cockroachdb.Account(cockroach).get_user_id(message['room'])
     privkey = enigma_cockroachdb.Keys(cockroach).get_privkey(id)
@@ -178,7 +178,7 @@ def response_to_user_encrypted(message):
          room=message['room'])
 
 
-@socketio.on('get_public_key', namespace='/enigma_chat')
+@socketio.on('get_public_key', namespace='/enigma_komunikator')
 def get_public_key(message):
     id = enigma_cockroachdb.Account(cockroach).get_user_id(message['data'])
     pubkey = enigma_cockroachdb.Keys(cockroach).get_pubkey(id)
