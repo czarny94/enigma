@@ -1,22 +1,17 @@
+#!/usr/bin/env python3
+
 from setuptools import setup, find_packages
 
 setup(
     name='enigma',
     version='0.1.0',
     packages=find_packages(),
+    py_modules = ['enigma'],
     author='Maciej Czarnota',
     author_email='maciek.czarnota@gmail.com',
 
-    package_data={
-        '': ['enigma.py']
-    },
+    package_data={'': ['*.html', '*.js', '*.map', '.css', ]},
     include_package_data=True,
-
-    # package_data={
-    #     'enigma': ['forms/*', 'sql/*', 'static/*', 'templates/*', '__init__.py', 'enigma.py', 'README.md']
-    # },
-    # include_package_data=True,
-
 
     description='Komunikator Internetowy z funkcją szyfrowania asymetrycznego',
     long_description=open('README.md').read(),
