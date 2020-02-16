@@ -205,7 +205,7 @@ def get_public_key(message):
 
 
 def main():
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=True, host="0.0.0.0", port="5000")
 
 
 if __name__ == '__main__':

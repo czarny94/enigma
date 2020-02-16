@@ -63,3 +63,8 @@ sudo docker start roach1 roach2 roach3
 
 # usunięcie danych bazy cockroacha
 rm -rf cockroach-data
+
+
+
+(venv_python3.6) czarny@czarny-laptop:~/PycharmProjects/enigma$ docker tag enigma:latest czarny94/enigma:latest
+(venv_python3.6) czarny@czarny-laptop:~/PycharmProjects/enigma$ docker push czarny94/enigma:latest

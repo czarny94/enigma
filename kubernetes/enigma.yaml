@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: enigma
+  labels:
+    app: enigma
+spec:
+  ports:
+  - port: 5000
+    targetPort: 5000
+    name: wsgi
+  selector:
+    app: enigma
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enigma
+  labels:
+    app: enigma
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: enigma
+  template:
+    metadata:
+      labels:
+        app: enigma
+    spec:
+      containers:
+      - name: enigma
+        image: czarny94/enigma:latest
+        env:
+        - name: RECAPTCHA_PUBLIC_KEY
+          value: "6LcS8MwUAAAAAHx02QRjhBWh76MGRY6E2KKS9NEM"
+        - name: RECAPTCHA_PRIVATE_KEY
+          value: "6LcS8MwUAAAAADE4kFsBXIh3zcEa52i_jmXMwhQC"
+        - name: COCKROACH_DB_URL
+          value: "cockroachdb-0.cockroachdb:26257"
+        ports:
+        - containerPort: 5000
+          name: wsgi
