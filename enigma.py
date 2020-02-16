@@ -3,6 +3,7 @@ from os import urandom
 
 from flask import Flask, render_template, request, url_for, redirect, flash, session
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
+from flask_wtf.csrf import CSRFProtect
 
 from flask_socketio import SocketIO, emit, join_room
 from forms import forms
@@ -16,6 +17,10 @@ app.config['SECRET_KEY'] = SECRET_KEY
 app.config['RECAPTCHA_PUBLIC_KEY'] = "6LcS8MwUAAAAAHx02QRjhBWh76MGRY6E2KKS9NEM"
 app.config['RECAPTCHA_PRIVATE_KEY'] = "6LcS8MwUAAAAADE4kFsBXIh3zcEa52i_jmXMwhQC"
 app.testing = False
+
+# CSRF protection
+csrf = CSRFProtect(app)
+csrf.init_app(app)
 
 # socketIO implementujący WebSockety
 # https://socket.io/
@@ -79,15 +84,18 @@ def register():
 
 
 @app.route('/profil')
-@login_required
 def profil():
-    key_timestamp = cockroach.session.query(enigma_cockroachdb.Keys.timestamp).filter_by(
-        id=current_user.id).first()
-    if key_timestamp:
-        key_timestamp = key_timestamp.timestamp
+    if current_user.is_authenticated:
+        key_timestamp = cockroach.session.query(enigma_cockroachdb.Keys.timestamp).filter_by(
+            id=current_user.id).first()
+        if key_timestamp:
+            key_timestamp = key_timestamp.timestamp
+        else:
+            key_timestamp = "brak klucza PGP"
+        return render_template('profil.html', profil_active=True, key_timestamp=key_timestamp)
     else:
-        key_timestamp = "brak klucza PGP"
-    return render_template('profil.html', profil_active=True, key_timestamp=key_timestamp)
+        flash('zabroniony dostęp dla niezalogowanych użytkowników - najpierw się zaloguj')
+        return redirect(url_for('login'))
 
 
 @app.route('/logout')
@@ -112,7 +120,6 @@ def generate_keys():
 
 
 @app.route('/get_keys', methods=["POST"])
-# @login_required
 def get_keys():
     if request.method == "POST":
         try:
@@ -133,9 +140,12 @@ def get_keys():
 
 
 @app.route('/komunikator', methods=["POST", "GET"])
-@login_required
 def komunikator():
-    return render_template('komunikator.html', komunikator_active=True, )
+    if current_user.is_authenticated:
+        return render_template('komunikator.html', komunikator_active=True, )
+    else:
+        flash('zabroniony dostęp dla niezalogowanych użytkowników - najpierw się zaloguj')
+        return redirect(url_for('login'))
 
 
 @socketio.on('connect', namespace='/enigma_komunikator')
