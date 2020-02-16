@@ -13,16 +13,15 @@ from sqlalchemy import create_engine, Column, Integer, String, LargeBinary
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-COCKROACH_DB_USER = 'enigma'
-COCKROACH_DB_URL = 'localhost:26257'
-COCKROACH_DB_DATABASE = 'enigma'
-SECURE_CLUSTER = False  # Set to False for insecure clusters
 
 Base = declarative_base()
 
 
 class Cockroach:
-    def __init__(self, secure_cluster=False):
+    def __init__(self, cockroach_db_user, cockroach_db_url, cockroach_db_database, secure_cluster=False):
+        self.cockroach_db_database = cockroach_db_database
+        self.cockroach_db_url = cockroach_db_url
+        self.cockroach_db_user = cockroach_db_user
         if secure_cluster:
             self.connect_args = {
                 'sslmode': 'require',
@@ -34,7 +33,7 @@ class Cockroach:
             self.connect_args = {'sslmode': 'disable'}
 
         self.engine = create_engine(
-            'cockroachdb://{}@{}/{}'.format(COCKROACH_DB_USER, COCKROACH_DB_URL, COCKROACH_DB_DATABASE),
+            'cockroachdb://{}@{}/{}'.format(self.cockroach_db_user, self.cockroach_db_url, self.cockroach_db_database),
             connect_args=self.connect_args,
             echo=True  # Log SQL queries to stdout
         )
@@ -49,7 +48,7 @@ class Cockroach:
 
 # Klasa Account jest odzwierciedleniem tabeli accounts w cockroachdb, oraz implementuje metody UserMixin dla Flask-Login
 class Account(UserMixin, Base):
-    def __init__(self, cockroach_db=Cockroach()):
+    def __init__(self, cockroach_db):
         self.cockroach_db = cockroach_db
 
     __tablename__ = 'accounts'
@@ -103,7 +102,7 @@ class Account(UserMixin, Base):
 
 
 class Keys(Base):
-    def __init__(self, cockroach_db=Cockroach()):
+    def __init__(self, cockroach_db):
         self.cockroach_db = cockroach_db
 
     __tablename__ = 'keys'
@@ -132,19 +131,7 @@ class Keys(Base):
     def get_pubkey(self, id):
         return self.cockroach_db.session.query(Keys.public_key).filter_by(id=id).first()
 
-
     def get_privkey(self, id):
         return self.cockroach_db.session.query(Keys.private_key).filter_by(id=id).first()
 
 
-
-class Message(Base):
-    def __init__(self, cockroach_db=Cockroach()):
-        self.cockroach_db = cockroach_db
-
-    __tablename__ = 'messages'
-    user_id = Column(Integer, primary_key=True)
-    message = Column(String)
-
-    def add_message(self):
-        pass

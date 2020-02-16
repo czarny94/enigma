@@ -1,5 +1,5 @@
 import json
-from os import urandom
+from os import urandom, getenv
 
 from flask import Flask, render_template, request, url_for, redirect, flash, session
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
@@ -9,13 +9,18 @@ from flask_socketio import SocketIO, emit, join_room
 from forms import forms
 from sql import enigma_cockroachdb
 
+RECAPTCHA_PUBLIC_KEY = getenv('RECAPTCHA_PUBLIC_KEY') # "6LcS8MwUAAAAAHx02QRjhBWh76MGRY6E2KKS9NEM"
+RECAPTCHA_PRIVATE_KEY = getenv('RECAPTCHA_PRIVATE_KEY') # "6LcS8MwUAAAAADE4kFsBXIh3zcEa52i_jmXMwhQC"
+COCKROACH_DB_URL = getenv('COCKROACH_DB_URL') # 'localhost:26257'
+COCKROACH_DB_USER = 'enigma'
+COCKROACH_DB_DATABASE = 'enigma'
+
 app = Flask(__name__)
 # utworzenie losowego klucza prywatnego dla ochrony przed CSRF
 SECRET_KEY = urandom(32)
 app.config['SECRET_KEY'] = SECRET_KEY
-# app.config['RECAPTCHA_USE_SSL'] = False
-app.config['RECAPTCHA_PUBLIC_KEY'] = "6LcS8MwUAAAAAHx02QRjhBWh76MGRY6E2KKS9NEM"
-app.config['RECAPTCHA_PRIVATE_KEY'] = "6LcS8MwUAAAAADE4kFsBXIh3zcEa52i_jmXMwhQC"
+app.config['RECAPTCHA_PUBLIC_KEY'] = RECAPTCHA_PUBLIC_KEY
+app.config['RECAPTCHA_PRIVATE_KEY'] = RECAPTCHA_PRIVATE_KEY
 app.testing = False
 
 # CSRF protection
@@ -33,7 +38,7 @@ login_manager.init_app(app)
 login_manager.session_protection = "strong"
 
 # połączenie z bazą danych
-cockroach = enigma_cockroachdb.Cockroach()
+cockroach = enigma_cockroachdb.Cockroach(COCKROACH_DB_USER, COCKROACH_DB_URL, COCKROACH_DB_DATABASE)
 
 
 @app.route('/', methods=["GET", "POST"])
