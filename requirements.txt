@@ -4,3 +4,5 @@ flask_wtf
 sqlalchemy
 cockroachdb
 psycopg2-binary
+flask_socketio
+eventlet
