@@ -6,7 +6,11 @@
   Zalogowany użytkownik: {{ current_user.username }} <br>
   Adres email: {{ current_user.email }} <br>
 
-  Data utworzenia kluczy szyfrujących: {{ key_timestamp }}
+  Data utworzenia kluczy szyfrujących: {{ key_timestamp }} <br>
+
+  <button type="button" onclick="window.location.href='{{ url_for('logout') }}';">Wyloguj się</button>
+
+
 
 {% endif %}
 {% endblock %}

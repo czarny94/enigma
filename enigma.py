@@ -14,7 +14,8 @@ SECRET_KEY = urandom(32)
 app.config['SECRET_KEY'] = SECRET_KEY
 # app.config['RECAPTCHA_USE_SSL'] = False
 app.config['RECAPTCHA_PUBLIC_KEY'] = "6LcS8MwUAAAAAHx02QRjhBWh76MGRY6E2KKS9NEM"
-app.testing = True
+app.config['RECAPTCHA_PRIVATE_KEY'] = "6LcS8MwUAAAAADE4kFsBXIh3zcEa52i_jmXMwhQC"
+app.testing = False
 
 # socketIO implementujący WebSockety
 # https://socket.io/
@@ -147,6 +148,7 @@ def broadcast_on_connection():
         emit('server_response', {'data': '{} połączył się'.format(username)}, broadcast=True)
     except KeyError:
         pass
+
 
 @socketio.on('disconnect', namespace='/enigma_komunikator')
 def broadcast_on_disconnect():

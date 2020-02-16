@@ -15,10 +15,6 @@
             // Połączenie z serwerem SocketIO
             var socket = io(namespace);
 
-            socket.on('connect', function() {
-                socket.emit('my_event', {data: 'I\'m connected!'});
-            });
-
             // Metoda uruchamiająca się przy otrzymaniu wiadomości od serwera
             socket.on('server_response', function(msg, cb) {
                 var today = new Date()
