@@ -102,7 +102,7 @@ class Account(UserMixin, Base):
 
 
 class Keys(Base):
-    def __init__(self, cockroach_db):
+    def __init__(self, cockroach_db=Cockroach(cockroach_db_user='enigma', cockroach_db_url='localhost:26257', cockroach_db_database='enigma')):
         self.cockroach_db = cockroach_db
 
     __tablename__ = 'keys'

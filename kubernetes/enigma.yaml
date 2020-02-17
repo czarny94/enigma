@@ -7,10 +7,12 @@ metadata:
 spec:
   ports:
   - port: 5000
+    nodePort: 30500
     targetPort: 5000
     name: wsgi
   selector:
     app: enigma
+  type: NodePort
 
 ---
 

@@ -10,7 +10,7 @@ setup(
     author='Maciej Czarnota',
     author_email='maciek.czarnota@gmail.com',
 
-    package_data={'': ['*.html', '*.js', '*.map', '.css', ]},
+    package_data={'': ['*.html', '*.js', '*.map', '*.css', ]},
     include_package_data=True,
 
     description='Komunikator Internetowy z funkcją szyfrowania asymetrycznego',

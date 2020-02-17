@@ -125,6 +125,7 @@ def generate_keys():
 
 
 @app.route('/get_keys', methods=["POST"])
+@csrf.exempt
 def get_keys():
     if request.method == "POST":
         try:
