@@ -1,0 +1,65 @@
+body {
+  padding-bottom: 80px;
+  background-color: powderblue;
+}
+/* konfiguracja stopki */
+.footer {
+   position: fixed; /* pokazuje stopke zawsze na dole strony */
+   left: 0;
+   bottom: 0;
+   width: 100%;
+   background-color: blue;
+   color: white;
+   text-align: center;
+}
+
+/* konfiguracja listy nawigacyjnej na górze ekranu */
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: blue;
+  position: -webkit-sticky; /* dla Safari */
+  position: sticky; /* przesuwanie belki nawigacji razem ze stroną */
+  top: 0;
+}
+
+/* konfiguracja listy wyswietlajacej błędy flash */
+ul.flashes {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: red;
+  top: 0;
+}
+
+/* konfiguracja elementów listy nawigacyjnej na górze ekranu */
+li {
+  float: left;
+}
+
+/* konfiguracja elementów listy wyświetlającej błedy */
+li.flash {
+  float: left;
+}
+
+/*konfiguracja elementów listy nawigacyjnej*/
+li a {
+  display: block;
+  color: black;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+li a:hover {
+  background-color: #111;
+}
+
+/* konfiguracja koloru aktywnego elementu listy nawigacyjnej */
+.active {
+  background-color: #4CAF50;
+}
+

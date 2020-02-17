@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block container %}
+
+Generowanie zestawu kluczy dla użytkownika: <b>{{ current_user.username }}</b><br>
+Wybierz hasło dla zabezpieczenia klucza prywatnego.<br>
+<b>Uwaga!</b> To hasło nie jest nigdzie zapisywane, nie ma możliwości jego przypomnienia, ani wygenerowania nowego.<br>
+Po utracie tego hasła, odszyfrowanie wiadomości nie będzie możliwe. Lepiej go zapamiętaj!<br>
+<input type="password" id="passphrase" value="">
+<br>
+<button id="Przycisk" type="button" >Generuj zestaw kluczy</button>
+<script src="static/js/openpgp.min.js"></script>
+<script src="static/js/jquery.js"></script>
+<script>
+    var passphrase = document.getElementById("passphrase");
+    document.getElementById("Przycisk").addEventListener("click", function() {
+        (async () => {
+        const key = await openpgp.generateKey({
+            userIds: [{ name: '{{ current_user.id }}', email: '{{ current_user.email }}' }], // you can pass multiple user IDs
+            rsaBits: 2048,                                              // RSA key size
+            passphrase: passphrase.value           // protects the private key
+            });
+
+            console.log(key);
+            $.ajax({
+                type: "POST",
+                url: "/get_keys",
+                data: JSON.stringify({ key: key }),
+                contentType: "application/x-www-form-urlencoded; charset=utf-8",
+                dataType: "json",
+                success: function(data){alert(data);},
+                failure: function(errMsg) {
+                    alert(errMsg);
+                }
+            });
+            alert('poprawnie wygenerowano zestaw kluczy');
+<!--            to poniżej, może powodować wyścig z generacją kluczy i przekierować zanim te zostaną wygenerowane i wysłane-->
+            window.location.replace("profil");
+
+        })();
+     });
+
+</script>
+
+{% endblock %}
+
+
+

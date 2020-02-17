@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <title>Enigma</title>
+
+<!--    Potrzebne, aby się poprawnie importowały biblioteki JS!-->
+    <script type=text/javascript>
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    </script>
+</head>
+<body>
+    <ul>
+        {% if mainpage_active %}
+            <li><a class="active" href="/">Strona Główna</a></li>
+        {% else %}
+            <li><a href="/">Strona Główna</a></li>
+        {% endif %}
+        {% if login_active %}
+            <li><a class="active" href="/login">Zaloguj się</a></li>
+        {% else %}
+            <li><a href="/login">Zaloguj się</a></li>
+        {% endif %}
+        {% if register_active %}
+            <li><a class="active" href="/register">Zarejestruj się</a></li>
+        {% else %}
+            <li><a href="/register">Zarejestruj się</a></li>
+        {% endif %}
+        {% if profil_active %}
+            <li><a class="active" href="/profil">Profil</a></li>
+        {% else %}
+            <li><a href="/profil">Profil</a></li>
+        {% endif %}
+        {% if komunikator_active %}
+            <li><a class="active" href="/komunikator">Komunikator</a></li>
+        {% else %}
+            <li><a href="/komunikator">Komunikator</a></li>
+        {% endif %}
+
+    </ul>
+<!--    pole służące do wyświetlania zawartości stron dziedziczacych-->
+    <div class="container">
+        {% block container %}{% endblock %}
+    </div>
+<!--    pole służące do wyświetlania błędów-->
+    <div class="container">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <ul class="flashes">
+            {% for message in messages %}
+              <li class="flash">{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+    </div>
+    <div class="footer">
+        <p>Praca Inżynierska, autor: Maciej Czarnota</p>
+        <p>Kontakt: <a href="mailto:maciek.czarnota@gmail.com">
+            maciek.czarnota@gmail.com</a></p>
+    </div>
+<!--    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>-->
+</body>
+</html>

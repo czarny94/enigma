@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block container %}
+<script src="static/js/jquery.js"></script>
+<script src="static/js/socket.io.js"></script>
+<script src="static/js/openpgp.min.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+        $(document).ready(function() {
+<!--            Aplikacja może otworzyć połączenie w wielu przestrzeniach nazw, a Socket.IO -->
+<!--            multipleksuje wszystkie te połączenia w jednym kanale fizycznym. -->
+<!--            Jeśli nie obchodzi Cię wiele kanałów, możesz ustawić przestrzeń nazw na pusty ciąg znaków.-->
+            namespace = '/enigma_komunikator';
+
+            // Połączenie z serwerem SocketIO
+            var socket = io(namespace);
+
+            // Metoda uruchamiająca się przy otrzymaniu wiadomości od serwera
+            socket.on('server_response', function(msg, cb) {
+                var today = new Date()
+                $('#log').append('<br>' + $('<div/>').text(today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds() + " " + msg.data).html());
+                if (cb)
+                    cb();
+            });
+
+            socket.on('server_response_encrypted', function(msg, cb) {
+                (async () => {
+                    try {
+                        const { keys: [privateKey] } = await openpgp.key.readArmored(msg.privkey[0]); // odczytanie klucza prywatnego
+                        await privateKey.decrypt(document.getElementById('passphrase').value); // odszyfrowanie samego klucza prywatnego za pomocą hasła
+                        const { data: decrypted } = await openpgp.decrypt({ // odszyfrowanie wiadomości
+                            message: await openpgp.message.readArmored(msg.encrypted_message),              // sparsowanie zaszyfrowanej wiadomości
+                            privateKeys: [privateKey]
+                        });
+                        var today = new Date() // aktualna data
+                        $('#log').append('<br>' + $('<div/>').text(today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds() + " *odszyfrowana wiadomość* " + msg.data + decrypted).html());
+                        if (cb)
+                            cb();
+                    }
+                    catch(error) { // jeżeli deszyfracja się nie uda
+                        var today = new Date()
+                        $('#log').append('<br>' + $('<div/>').text(today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds() + " " + msg.data + error).html());
+                    }
+                })();
+            });
+
+
+
+            $('form#emit').submit(function(event) {
+                socket.emit('komunikator_response', {data: $('#emit_data').val()});
+                return false;
+            });
+
+
+
+
+            $('form#send_user').submit(function(event) {
+                if (document.getElementById('encrypt').checked) {
+                    socket.emit('get_public_key', {data: $('#room_name').val()});
+                    return false;
+                } else {
+                    socket.emit('response_to_user', {room: $('#room_name').val(), data: $('#room_data').val()});
+                    return false;
+                }
+
+            });
+            // proces szyfrowania wiadomości
+            socket.on('public_key', function(msg) {
+                const publicKeys = msg.data;
+                (async () => {
+                    const { data: encrypted } = await openpgp.encrypt({
+                        message: openpgp.message.fromText($('#room_data').val()),   // wiadomość z formularza
+                        publicKeys: (await openpgp.key.readArmored(publicKeys)).keys, // klucz publiczny do zaszyfrowania
+                    });
+                socket.emit('response_to_user_encrypted', {room: $('#room_name').val(), data: encrypted}); // zaszyfrowana wiadomość
+                })();
+            });
+
+        });
+
+
+
+
+</script>
+
+<form id="emit" method="POST" action='#'>
+    <input type="text" name="emit_data" id="emit_data" placeholder="Wiadomość">
+    <input type="submit" value="Wyślij wiadomość do wszystkich">
+</form>
+<form id="send_user" method="POST" action='#'>
+    <input type="text" name="room_data" id="room_data" placeholder="Wiadomość">
+    <input type="text" name="room_name" id="room_name" placeholder="Nazwa użytkownika">
+    <input type="submit" value="Wyślij wiadomość">
+    <input type="checkbox" name="encrypt" value="encrypt" id="encrypt"> Czy zaszyfrować wiadomość?<br>
+</form>
+<form id="passphrase_form">
+    <input type="password" name="passphrase" id="passphrase" placeholder="Hasło do klucza prywatnego"> Twoje hasło
+    użyte przy generacji kluczy szyfrujących, jeżeli go nie wpiszesz, wiadomości przychodzące nie zostaną
+    odszyfrowane<br>
+</form>
+
+<h2>Otrzymane wiadomości:</h2>
+<div id="log"></div>
+{% endblock %}
