@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cluster-init
+  labels:
+    app: cockroachdb
+spec:
+  template:
+    spec:
+      containers:
+      - name: cluster-init
+        image: cockroachdb/cockroach:v19.2.4
+        imagePullPolicy: IfNotPresent
+        command:
+          - "/cockroach/cockroach"
+          - "init"
+          - "--insecure"
+          - "--host=cockroachdb-0.cockroachdb"
+      restartPolicy: OnFailure
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: database-init
+  labels:
+    app: cockroachdb
+spec:
+  template:
+    spec:
+      containers:
+      - name: database-init
+        image: cockroachdb/cockroach:v19.2.4
+        imagePullPolicy: IfNotPresent
+        command:
+          - "/cockroach/cockroach"
+          - "sql"
+          - "--insecure"
+          - "--host=cockroachdb-0.cockroachdb"
+          - "-e create database enigma; create user enigma; grant all on database enigma to enigma; "
+      restartPolicy: OnFailure
