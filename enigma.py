@@ -9,9 +9,9 @@ from flask_socketio import SocketIO, emit, join_room
 from forms import forms
 from sql import enigma_cockroachdb
 
-RECAPTCHA_PUBLIC_KEY = getenv('RECAPTCHA_PUBLIC_KEY') # "6LcS8MwUAAAAAHx02QRjhBWh76MGRY6E2KKS9NEM"
-RECAPTCHA_PRIVATE_KEY = getenv('RECAPTCHA_PRIVATE_KEY') # "6LcS8MwUAAAAADE4kFsBXIh3zcEa52i_jmXMwhQC"
-COCKROACH_DB_URL = getenv('COCKROACH_DB_URL') # 'localhost:26257'
+RECAPTCHA_PUBLIC_KEY = getenv('RECAPTCHA_PUBLIC_KEY')  # "6LcS8MwUAAAAAHx02QRjhBWh76MGRY6E2KKS9NEM"
+RECAPTCHA_PRIVATE_KEY = getenv('RECAPTCHA_PRIVATE_KEY')  # "6LcS8MwUAAAAADE4kFsBXIh3zcEa52i_jmXMwhQC"
+COCKROACH_DB_URL = getenv('COCKROACH_DB_URL')  # 'localhost:26257'
 COCKROACH_DB_USER = 'enigma'
 COCKROACH_DB_DATABASE = 'enigma'
 
@@ -22,6 +22,7 @@ app.config['SECRET_KEY'] = SECRET_KEY
 app.config['RECAPTCHA_PUBLIC_KEY'] = RECAPTCHA_PUBLIC_KEY
 app.config['RECAPTCHA_PRIVATE_KEY'] = RECAPTCHA_PRIVATE_KEY
 app.testing = False
+
 
 # CSRF protection
 csrf = CSRFProtect(app)
@@ -113,8 +114,11 @@ def logout():
 
 @login_manager.user_loader
 def load_user(id):
-    if id is not None:
-        return cockroach.session.query(enigma_cockroachdb.Account).get(id)
+    try:
+        if id is not None:
+            return cockroach.session.query(enigma_cockroachdb.Account).get(id)
+    except:
+        cockroach.session.rollback()
     return None
 
 
@@ -152,6 +156,7 @@ def komunikator():
     else:
         flash('zabroniony dostęp dla niezalogowanych użytkowników - najpierw się zaloguj')
         return redirect(url_for('login'))
+
 
 
 @socketio.on('connect', namespace='/enigma_komunikator')
